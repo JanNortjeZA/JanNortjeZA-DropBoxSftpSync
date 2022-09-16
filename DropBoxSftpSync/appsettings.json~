@@ -1,0 +1,24 @@
+{
+    "IsEncrypted": false,
+    "ConnectionStrings": {
+        // "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        //"AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=clmwebjobs;AccountKey=JOPhXML4thKti0Z7lOOaoZhBkk/MDHhh72/k5sGldImhnturTyRubIM/GhiV7yHn20eFwBs/OH/GxDLtjA/J3Q==;EndpointSuffix=core.windows.net",
+        "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=danceradiozabd6f;AccountKey=ZbSrYcl8wXP+cyojfr/7ZJN3DYxhFxl0fw6kZydmJ86WqUb6EqQUuFzdMjZcZWchTxU+fC5aHVcj+ASteJPpzw==;EndpointSuffix=core.windows.net",
+        "coreConnDropBox_host": "https://api.dropboxapi.com",
+        "tubelessMySql": "server=127.0.0.1;uid=jan;pwd=djTubel3ss;database=DropBoxSftpSync",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "CloudStorageAccount": "/subscriptions/47f52c54-e9f5-4728-bffe-a686c40db748/resourceGroups/DanceRadioZA/providers/Microsoft.Storage/storageAccounts/danceradiozabd6f"
+
+
+    },
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "CloudStorageAccount": "/subscriptions/47f52c54-e9f5-4728-bffe-a686c40db748/resourceGroups/DanceRadioZA/providers/Microsoft.Storage/storageAccounts/danceradiozabd6f"
+    }
+
+
+    // "DropBox_host": "https://sms.dcdata.co.za/clubtech/orion.php"
+
+}
+

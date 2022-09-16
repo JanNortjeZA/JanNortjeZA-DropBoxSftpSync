@@ -1,0 +1,126 @@
+﻿using Microsoft.Azure.Amqp;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Configuration;
+using System.Text;
+using WinSCP;
+
+namespace DanceRadioSync.BLL
+{
+    public interface IWebServiceWorker
+    {
+        public string GetFileListFromDropBox(string number, string message, string Ref);
+    }
+
+    public class WebServiceWorker : IWebServiceWorker
+    {
+
+        private static string access_token { get; set; } = "";
+        private static string host { get; set; } = "";
+        private readonly IConfiguration _config;
+        private static  ILogger _logger;
+
+        public WebServiceWorker(IConfiguration config, ILogger logger)
+        {
+            _logger = logger;
+            _config = config;
+            host = _config.GetValue<string>("DropBox_host");
+
+        }
+        private string getURL(string number, string message, string Ref = "Iris") {
+
+            return "?to=" + number + "&message="+ message + "&username=clubtech&password=_817hJqybamM&ref=" + Ref;
+        }
+
+        public string GetFileListFromDropBox(string number, string message,string Ref)
+        {
+            string url = getURL(number, message, Ref);
+            return (Task.Run(async () => await GetJsonFromURLAsync(url))).Result;
+        }
+
+        private static async Task<string> PostJsonToURLAsync(string url, string json)
+        {
+            HttpClient client = NewOauthHttpClient(host, access_token);
+            var response = client.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json")).Result;
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        private static async Task<string> PutJsonToURLAsync(string url, string json)
+        {
+            HttpClient client = NewOauthHttpClient(host, access_token);
+            var response = client.PutAsync(url, new StringContent(json, Encoding.UTF8, "application/json")).Result;
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        private static async Task<string> PutToURLAsync(string url)
+        {
+            HttpClient client = NewOauthHttpClient(host, access_token);
+            var response = client.PutAsync(url, new StringContent("")).Result;
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        private static async Task<string> GetJsonFromURLAsync(string url)
+        {
+
+            HttpClient client = NewOauthHttpClient(host, access_token);
+            var response = client.GetAsync(url).Result;
+            return await response.Content.ReadAsStringAsync();
+        }
+
+
+        private static HttpClient NewOauthHttpClient(string _host, string _access_token)
+        {
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(_host);
+            if (_access_token != "")
+                client.DefaultRequestHeaders.Add("Authorization", string.Concat("Bearer ", _access_token));
+            return client;
+        }
+
+
+        private int UploadToSftp(Stream stream, string remPath, string fileName)
+        {
+            //_logger = new Logger();
+            try
+            {
+                // Setup session options
+                SessionOptions sessionOptions = new SessionOptions
+                {
+                    Protocol = Protocol.Sftp,
+                    HostName = "41.76.109.47",
+                    PortNumber = 22,
+                    UserName = "danceradio",
+                    Password = "djTubel3ss@2022",
+                    // SshHostKeyFingerprint = "ssh-rsa 2048 xxxxxxxxxxx..."
+                };
+
+                using (Session session = new Session())
+                {
+                    // Connect
+                    session.Open(sessionOptions);
+
+                    // Upload files
+                    TransferOptions transferOptions = new TransferOptions();
+                    transferOptions.OverwriteMode = OverwriteMode.Overwrite;
+                    transferOptions.TransferMode = TransferMode.Binary;
+                    string remFilePath = string.Concat("/DrpBox/", remPath);
+                    string ext = Path.GetExtension(fileName);
+                    // TransferOperationResult transferResult;
+                    //Session session1 = session;
+                    using (stream)
+                    {
+                        session.PutFile(stream, remFilePath, transferOptions);
+                        _logger.LogDebug($"Saved {remFilePath}/{fileName} ");
+                    }
+
+                }
+                return 0;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error: ", e);
+                return 1;
+            }
+        }
+    }
+}
